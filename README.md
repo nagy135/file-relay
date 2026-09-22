@@ -1,7 +1,7 @@
 # File relay
 
 A public file relay: upload one file, receive a random UUIDv4 download URL.
-Files expire exactly seven days after a completed upload. Downloads do not
+Files expire exactly one hour after a completed upload. Downloads do not
 extend expiry. No accounts, upload tokens, or file listing.
 
 ## Run with Docker Compose
@@ -27,7 +27,7 @@ Successful uploads return HTTP 201 and JSON:
   "filename": "test.txt",
   "size": 12,
   "uploaded_at": "2026-09-22T12:00:00Z",
-  "expires_at": "2026-09-29T12:00:00Z"
+  "expires_at": "2026-09-22T13:00:00Z"
 }
 ```
 

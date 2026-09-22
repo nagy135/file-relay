@@ -64,7 +64,7 @@ func TestUploadDownloadAndExpiry(t *testing.T) {
 	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
 		t.Fatal(err)
 	}
-	if response.URL != a.baseURL+path || response.Size != 11 || response.Filename != "résumé.txt" || response.ExpiresAt.Sub(response.UploadedAt) != retention {
+	if response.URL != a.baseURL+path || response.Size != 11 || response.Filename != "résumé.txt" || response.ExpiresAt.Sub(response.UploadedAt) != time.Hour {
 		t.Fatalf("unexpected response: %+v", response)
 	}
 	// A new application instance must still be able to read the persisted file.

@@ -22,7 +22,7 @@ import (
 )
 
 const maxFileSize int64 = 200_000_000
-const retention = 7 * 24 * time.Hour
+const retention = time.Hour
 
 //go:embed index.html
 var indexHTML []byte
@@ -112,7 +112,7 @@ func main() {
 		}
 		close(done)
 	}()
-	log.Printf("listening on %s; public URL %s; files expire after 7 days", server.Addr, base)
+	log.Printf("listening on %s; public URL %s; files expire after %s", server.Addr, base, retention)
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}
