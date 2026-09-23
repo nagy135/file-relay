@@ -12,6 +12,14 @@ const size = (bytes) =>
       ? `${(bytes / 1000).toFixed(1)} KB`
       : `${(bytes / 1e6).toFixed(1)} MB`;
 const currentTime = () => Date.now() + clockOffset;
+function duration(milliseconds) {
+  const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  if (seconds >= 86400)
+    return `${Math.floor(seconds / 86400)}d ${Math.floor((seconds % 86400) / 3600)}h`;
+  if (seconds >= 3600)
+    return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+  return `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, "0")}s`;
+}
 function toast(message) {
   $("#toast").textContent = message;
   $("#toast").hidden = false;
@@ -43,10 +51,8 @@ function icon(kind) {
 function updateTime(cell, file) {
   const remaining = Math.max(0, new Date(file.expires_at) - currentTime());
   const lifetime = new Date(file.expires_at) - new Date(file.uploaded_at);
-  const minutes = Math.floor(remaining / 60000),
-    seconds = Math.floor((remaining % 60000) / 1000);
-  cell.querySelector(".remaining").textContent =
-    `${minutes}m ${String(seconds).padStart(2, "0")}s left`;
+  cell.querySelector(".remaining").textContent = `${duration(remaining)} left`;
+  cell.querySelector(".expiry-clock").textContent = `of ${duration(lifetime)}`;
   cell.querySelector("progress").value =
     lifetime > 0 ? Math.max(0, Math.min(100, (remaining / lifetime) * 100)) : 0;
   cell.classList.toggle("expiring", remaining < 10 * 60000);
@@ -90,7 +96,7 @@ function render() {
       element(
         "div",
         "file-meta",
-        `Uploaded ${uploaded.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+        `Uploaded ${uploaded.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`,
       ),
     );
     const fileIcon = element("span", "file-icon", extension || "FILE");
@@ -102,10 +108,7 @@ function render() {
     const expiryCell = element("td", "expiry");
     expiryCell.title = `Expires ${new Date(file.expires_at).toLocaleString()}`;
     const label = element("div", "expiry-label");
-    label.append(
-      element("span", "remaining"),
-      element("span", "expiry-clock", "of 1 hour"),
-    );
+    label.append(element("span", "remaining"), element("span", "expiry-clock"));
     const progress = element("progress");
     progress.max = 100;
     progress.setAttribute(

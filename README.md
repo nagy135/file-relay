@@ -97,6 +97,7 @@ The dashboard shows one row per active file, its size, and a live progress bar
 for its remaining lifetime. It includes filename search, sorting, copy/download
 actions, active file and storage totals, and automatic refresh every 15 seconds.
 Expired files disappear immediately from the listing, even before disk cleanup.
+Older uploads keep their original expiry; each row uses its stored lifetime.
 Public upload and download endpoints retain their existing behavior.
 
 ## Development
