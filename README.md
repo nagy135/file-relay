@@ -2,12 +2,14 @@
 
 A public file relay: upload one file, receive a random UUIDv4 download URL.
 Files expire exactly one hour after a completed upload. Downloads do not
-extend expiry. No accounts, upload tokens, or file listing.
+extend expiry. Public uploads and downloads need no account or upload token.
+A password-protected dashboard lists active files at `/dashboard`.
 
 ## Run with Docker Compose
 
 ```sh
 cp .env.example .env
+# Set DASHBOARD_USERNAME and DASHBOARD_PASSWORD in .env before starting.
 docker compose up -d --build
 ```
 
@@ -47,6 +49,8 @@ The checkout lives at `/home/infiniter/services/file-relay`. Its `.env` contains
 
 ```sh
 PUBLIC_BASE_URL=https://relay.infiniter.tech
+DASHBOARD_USERNAME=admin
+DASHBOARD_PASSWORD=your-password
 ```
 
 Start and stop manually:
@@ -77,6 +81,23 @@ Expired files are removed every minute and at startup. Expired links stop
 working immediately, even before cleanup. Cleanup runs only while the app runs;
 after downtime, it removes expired files on the next startup. Incomplete uploads
 are removed on error or startup after a crash.
+
+## Dashboard
+
+Open `/dashboard` and sign in using the browser's username/password prompt.
+Credentials come from `DASHBOARD_USERNAME` and `DASHBOARD_PASSWORD`; both must
+be nonempty or dashboard requests return HTTP 503. Credentials are checked on
+every dashboard and `/api/files` request using HTTP Basic authentication.
+Use HTTPS outside local development. After changing `.env`, run
+`docker compose up -d` to recreate the container with the new credentials.
+Browsers remember Basic authentication for the session; close the private
+browsing session to clear it when using a shared machine.
+
+The dashboard shows one row per active file, its size, and a live progress bar
+for its remaining lifetime. It includes filename search, sorting, copy/download
+actions, active file and storage totals, and automatic refresh every 15 seconds.
+Expired files disappear immediately from the listing, even before disk cleanup.
+Public upload and download endpoints retain their existing behavior.
 
 ## Development
 

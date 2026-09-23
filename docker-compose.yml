@@ -5,6 +5,8 @@ services:
       - "127.0.0.1:13006:8080"
     environment:
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:13006}
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME:-}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-}
     volumes:
       - relay-data:/data
     restart: "no"

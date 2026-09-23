@@ -1,62 +1,108 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>File relay</title>
-<style>
-  :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-  body { max-width: 36rem; margin: 12vh auto; padding: 1.5rem; line-height: 1.6; }
-  h1 { letter-spacing: -.04em; margin-bottom: .25rem; }
-  form { display: grid; gap: 1rem; margin: 2rem 0; }
-  input, button { font: inherit; }
-  button { padding: .6rem 1rem; cursor: pointer; }
-  a { overflow-wrap: anywhere; }
-  progress { width: 100%; }
-  code { overflow-wrap: anywhere; }
-</style>
-<h1>File relay</h1>
-<p>Upload a file, get a download link. Up to 200 MB. Files expire after 1 hour. Anyone with the link can download.</p>
-<form id="upload">
-  <label for="file">Choose a file</label>
-  <input type="file" id="file" name="file" required>
-  <button id="submit">Upload file</button>
-  <progress id="progress" max="100" value="0" hidden aria-label="Upload progress"></progress>
-</form>
-<div id="result" role="status" aria-live="polite"></div>
-<p>From a terminal:<br><code>curl -fsS -F 'file=@test.txt' <span id="endpoint"></span>/upload</code></p>
-<script>
-  const form = document.querySelector('#upload');
-  const input = document.querySelector('#file');
-  const button = document.querySelector('#submit');
-  const progress = document.querySelector('#progress');
-  const result = document.querySelector('#result');
-  document.querySelector('#endpoint').textContent = location.origin;
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!input.files.length) return;
-    if (input.files[0].size > 200000000) { result.textContent = 'File exceeds the 200 MB limit.'; return; }
-    button.disabled = true;
-    progress.hidden = false;
-    progress.value = 0;
-    result.textContent = 'Uploading…';
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/upload');
-    xhr.responseType = 'json';
-    xhr.timeout = 30 * 60 * 1000;
-    xhr.upload.onprogress = (event) => { if (event.lengthComputable) progress.value = event.loaded / event.total * 100; };
-    xhr.onload = () => {
-      if (xhr.status !== 201) { result.textContent = xhr.response?.error || `Upload failed (${xhr.status}).`; return; }
-      const link = document.createElement('a');
-      link.href = xhr.response.url;
-      link.textContent = xhr.response.url;
-      const expiry = document.createElement('p');
-      expiry.textContent = 'Expires ' + new Date(xhr.response.expires_at).toLocaleString();
-      result.replaceChildren(link, expiry);
-    };
-    xhr.onerror = () => { result.textContent = 'Upload failed. Check your connection and try again.'; };
-    xhr.ontimeout = () => { result.textContent = 'Upload timed out. Try again.'; };
-    xhr.onloadend = () => { button.disabled = false; progress.hidden = true; };
-    xhr.send(new FormData(form));
-  });
-</script>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Upload · File relay</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/upload.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/"
+          ><span class="mark" aria-hidden="true">↗</span>file relay</a
+        >
+        <div class="navlinks">
+          <a href="/" aria-current="page">Upload</a
+          ><a href="/dashboard">Dashboard</a>
+        </div>
+        <span class="nav-note">Temporary by design</span>
+      </nav>
+    </header>
+    <main class="shell upload-shell">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">A little less attachment</p>
+          <h1>Send it on its way.</h1>
+          <p class="subtitle">One file. One link. Gone in an hour.</p>
+        </div>
+      </div>
+      <section class="panel upload-panel" aria-label="Upload a file">
+        <form id="upload">
+          <label class="dropzone" id="dropzone" for="file"
+            ><input
+              type="file"
+              id="file"
+              name="file"
+              required
+              aria-describedby="file-note"
+            /><span class="upload-icon" aria-hidden="true">↥</span
+            ><span class="drop-title" id="file-title"
+              >Drop a file here, or <em>browse files</em></span
+            ><span class="drop-note" id="file-note"
+              >Any file type · Up to 200 MB</span
+            ></label
+          >
+          <div class="upload-action">
+            <p>Anyone with your link can download the file.</p>
+            <button class="button primary" id="submit" type="submit">
+              Upload file <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div class="upload-progress" id="upload-progress" hidden>
+            <p>
+              <span>Sending your file…</span><span id="progress-label">0%</span>
+            </p>
+            <progress
+              id="progress"
+              max="100"
+              value="0"
+              aria-label="Upload progress"
+            ></progress>
+          </div>
+        </form>
+        <div id="error" class="error" role="alert" hidden></div>
+        <div
+          id="result"
+          class="result"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
+      </section>
+      <div class="feature-row">
+        <div class="feature">
+          <strong>200 MB per file</strong>Room for the things you share.
+        </div>
+        <div class="feature">
+          <strong>A link, ready to go</strong>No account needed to upload.
+        </div>
+        <div class="feature">
+          <strong>Gone in 1 hour</strong>Automatic expiry and cleanup.
+        </div>
+      </div>
+      <section class="panel terminal" aria-label="Terminal upload">
+        <div class="terminal-head">
+          <h2>More of a terminal person?</h2>
+          <small>Works with curl, too</small>
+        </div>
+        <code
+          ><span>curl</span> -fsS -F 'file=@test.txt'
+          <span id="endpoint"></span>/upload</code
+        >
+      </section>
+      <noscript
+        ><p class="error">
+          Enable JavaScript to upload here, or use the curl command above with
+          this site’s address.
+        </p></noscript
+      >
+      <footer class="footer">
+        <strong>Small stop. Next destination.</strong
+        ><span>File relay · Temporary by design</span>
+      </footer>
+    </main>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </body>
 </html>

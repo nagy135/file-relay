@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dashboard · File relay</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/dashboard.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/"
+          ><span class="mark" aria-hidden="true">↗</span>file relay</a
+        >
+        <div class="navlinks">
+          <a href="/">Upload</a
+          ><a href="/dashboard" aria-current="page">Dashboard</a>
+        </div>
+        <span class="nav-note">Private dashboard</span>
+      </nav>
+    </header>
+    <main class="shell">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">Your relay, at a glance</p>
+          <h1>File dashboard</h1>
+          <p class="subtitle">Everything in transit. Nothing stays forever.</p>
+        </div>
+        <a class="button primary" href="/"
+          ><span class="plus" aria-hidden="true">+</span> Upload file</a
+        >
+      </div>
+      <section class="stats" aria-label="File summary">
+        <div class="stat">
+          <div class="stat-label">
+            Active files <span class="stat-icon" aria-hidden="true">▤</span>
+          </div>
+          <div class="stat-value" id="total-files">—</div>
+          <div class="stat-note">Available to download</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">
+            Total storage <span class="stat-icon" aria-hidden="true">◫</span>
+          </div>
+          <div class="stat-value" id="total-size">—</div>
+          <div class="stat-note">Across all active files</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">
+            Retention <span class="stat-icon" aria-hidden="true">◷</span>
+          </div>
+          <div class="stat-value">1 <small>hour</small></div>
+          <div class="stat-note">Automatically deleted after expiry</div>
+        </div>
+      </section>
+      <div class="error" id="error" role="alert" hidden></div>
+      <section class="panel" aria-labelledby="files-heading">
+        <div class="panel-top">
+          <div class="panel-title">
+            <h2 id="files-heading">Active files</h2>
+            <span class="badge" id="file-count">—</span>
+          </div>
+          <div class="controls">
+            <label class="sr-only" for="search">Search files</label
+            ><input
+              type="search"
+              id="search"
+              placeholder="Search files…"
+              autocomplete="off"
+            /><label class="sr-only" for="sort">Sort files</label
+            ><select id="sort">
+              <option value="newest">Newest first</option>
+              <option value="expiry">Expiring soon</option>
+              <option value="size">Largest first</option>
+              <option value="name">Name A–Z</option></select
+            ><button
+              class="button"
+              id="refresh"
+              type="button"
+              aria-label="Refresh files"
+            >
+              ↻
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap" id="table-wrap" hidden>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">File name</th>
+                <th scope="col">Size</th>
+                <th scope="col">Time remaining</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="files"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="empty">
+          <span class="empty-icon" aria-hidden="true">▤</span>
+          <h3 id="empty-title">Loading your files…</h3>
+          <p id="empty-description">Checking what’s in transit.</p>
+          <a class="button primary" href="/" id="empty-upload" hidden
+            >Upload a file</a
+          >
+        </div>
+        <div class="panel-bottom">
+          <span id="showing">Connecting…</span
+          ><span class="live" id="sync-status">Updates every 15 seconds</span>
+        </div>
+      </section>
+      <p class="footnote">
+        Files expire 1 hour after upload. Downloading a file doesn’t extend its
+        lifetime.
+      </p>
+      <noscript
+        ><p class="error">
+          Enable JavaScript to view files and their expiry timers.
+        </p></noscript
+      >
+      <footer class="footer">
+        <strong>Small stop. Next destination.</strong
+        ><span>File relay · Temporary by design</span>
+      </footer>
+    </main>
+    <div id="toast" class="toast" role="status" hidden></div>
+  </body>
+</html>

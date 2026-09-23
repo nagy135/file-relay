@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
+	"crypto/subtle"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -16,6 +18,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -27,6 +30,18 @@ const retention = time.Hour
 //go:embed index.html
 var indexHTML []byte
 
+//go:embed dashboard.html
+var dashboardHTML []byte
+
+//go:embed styles.css
+var stylesCSS []byte
+
+//go:embed dashboard.js
+var dashboardJS []byte
+
+//go:embed upload.js
+var uploadJS []byte
+
 var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 
 type metadata struct {
@@ -37,11 +52,13 @@ type metadata struct {
 }
 
 type relay struct {
-	dir     string
-	baseURL string
-	limit   int64
-	now     func() time.Time
-	uploads chan struct{}
+	dir      string
+	baseURL  string
+	limit    int64
+	now      func() time.Time
+	uploads  chan struct{}
+	username string
+	password string
 }
 
 func main() {
@@ -72,7 +89,7 @@ func main() {
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		log.Fatal(err)
 	}
-	app := &relay{dir: dir, baseURL: base, limit: maxFileSize, now: time.Now, uploads: make(chan struct{}, 4)}
+	app := &relay{dir: dir, baseURL: base, limit: maxFileSize, now: time.Now, uploads: make(chan struct{}, 4), username: os.Getenv("DASHBOARD_USERNAME"), password: os.Getenv("DASHBOARD_PASSWORD")}
 	// Only one relay process should use this data directory. Remove uploads left
 	// unfinished by a previous process before accepting any new requests.
 	entries, err := os.ReadDir(dir)
@@ -126,14 +143,88 @@ func (a *relay) handler() http.Handler {
 		w.Write(indexHTML)
 	})
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("ok\n")) })
+	mux.HandleFunc("GET /styles.css", asset("text/css; charset=utf-8", stylesCSS))
+	mux.HandleFunc("GET /upload.js", asset("text/javascript; charset=utf-8", uploadJS))
+	mux.HandleFunc("GET /dashboard.js", a.authenticate(asset("text/javascript; charset=utf-8", dashboardJS)))
+	mux.HandleFunc("GET /dashboard", a.authenticate(asset("text/html; charset=utf-8", dashboardHTML)))
+	mux.HandleFunc("GET /api/files", a.authenticate(a.listFiles))
 	mux.HandleFunc("POST /upload", a.upload)
 	mux.HandleFunc("GET /{id}", a.download)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Referrer-Policy", "no-referrer")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
 		mux.ServeHTTP(w, r)
 	})
+}
+
+func asset(contentType string, body []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
+		w.Write(body)
+	}
+}
+
+func (a *relay) authenticate(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if a.username == "" || a.password == "" {
+			fail(w, http.StatusServiceUnavailable, "dashboard credentials are not configured")
+			return
+		}
+		username, password, ok := r.BasicAuth()
+		userHash, passHash := sha256.Sum256([]byte(username)), sha256.Sum256([]byte(password))
+		wantUser, wantPass := sha256.Sum256([]byte(a.username)), sha256.Sum256([]byte(a.password))
+		valid := subtle.ConstantTimeCompare(userHash[:], wantUser[:]) & subtle.ConstantTimeCompare(passHash[:], wantPass[:])
+		if !ok || valid != 1 {
+			w.Header().Set("WWW-Authenticate", `Basic realm="File relay dashboard", charset="UTF-8"`)
+			fail(w, http.StatusUnauthorized, "dashboard authentication required")
+			return
+		}
+		next(w, r)
+	}
+}
+
+type listedFile struct {
+	ID  string `json:"id"`
+	URL string `json:"url"`
+	metadata
+}
+
+func (a *relay) listFiles(w http.ResponseWriter, r *http.Request) {
+	entries, err := os.ReadDir(a.dir)
+	if err != nil {
+		fail(w, http.StatusInternalServerError, "could not read file storage")
+		return
+	}
+	now := a.now().UTC()
+	files := make([]listedFile, 0)
+	for _, entry := range entries {
+		if !entry.IsDir() || !uuidPattern.MatchString(entry.Name()) {
+			continue
+		}
+		m, err := a.readMetadata(entry.Name())
+		if err != nil || !now.Before(m.ExpiresAt) {
+			continue
+		}
+		// Ignore incomplete entries, including files removed by cleanup during a scan.
+		if info, err := os.Stat(filepath.Join(a.dir, entry.Name(), "content")); err != nil || !info.Mode().IsRegular() {
+			continue
+		}
+		files = append(files, listedFile{ID: entry.Name(), URL: a.baseURL + "/" + entry.Name(), metadata: m})
+	}
+	sort.Slice(files, func(i, j int) bool {
+		if files[i].UploadedAt.Equal(files[j].UploadedAt) {
+			return files[i].ID < files[j].ID
+		}
+		return files[i].UploadedAt.After(files[j].UploadedAt)
+	})
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(struct {
+		Files []listedFile `json:"files"`
+		Now   time.Time    `json:"now"`
+	}{Files: files, Now: now})
 }
 
 func fail(w http.ResponseWriter, status int, message string) {

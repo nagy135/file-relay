@@ -1,7 +1,7 @@
 FROM golang:1.26-alpine@sha256:8ac98ca534ac3f51e1f420a1dd2c15e74c75cfa0f23f3ad27eb5d7236c349a0c AS build
 WORKDIR /src
 COPY go.mod ./
-COPY *.go index.html ./
+COPY *.go *.html *.css *.js ./
 RUN go test ./... && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /file-relay . \
     && mkdir /data && chown 65532:65532 /data
 

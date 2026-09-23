@@ -193,3 +193,117 @@ func TestRequestLimitAndBusy(t *testing.T) {
 		t.Fatalf("busy: %d %v", w.Code, w.Header())
 	}
 }
+
+func TestDashboardAuthentication(t *testing.T) {
+	for _, endpoint := range []string{"/dashboard", "/dashboard.js", "/api/files"} {
+		for _, tc := range []struct {
+			name, configuredUser, configuredPassword, user, password string
+			want                                                     int
+		}{
+			{"disabled", "", "", "", "", 503},
+			{"missing password", "admin", "", "admin", "", 503},
+			{"missing username", "", "secret", "", "secret", 503},
+			{"anonymous", "admin", "secret", "", "", 401},
+			{"wrong username", "admin", "secret", "other", "secret", 401},
+			{"wrong password", "admin", "secret", "admin", "wrong", 401},
+			{"authenticated", "admin", "secret", "admin", "secret", 200},
+		} {
+			t.Run(endpoint+"/"+tc.name, func(t *testing.T) {
+				a := testRelay(t)
+				a.username, a.password = tc.configuredUser, tc.configuredPassword
+				r := httptest.NewRequest("GET", endpoint, nil)
+				if tc.user != "" || tc.password != "" {
+					r.SetBasicAuth(tc.user, tc.password)
+				}
+				w := httptest.NewRecorder()
+				a.handler().ServeHTTP(w, r)
+				if w.Code != tc.want {
+					t.Fatalf("status %d, want %d", w.Code, tc.want)
+				}
+				if tc.want == 401 && w.Header().Get("WWW-Authenticate") == "" {
+					t.Fatal("missing authentication challenge")
+				}
+				if w.Header().Get("Cache-Control") != "no-store" {
+					t.Fatal("dashboard response must not be cached")
+				}
+				if tc.want != 200 && strings.Contains(w.Body.String(), "File dashboard") {
+					t.Fatal("dashboard exposed without authentication")
+				}
+			})
+		}
+	}
+}
+
+func TestDashboardListsOnlyActiveCompleteFiles(t *testing.T) {
+	a := testRelay(t)
+	a.username, a.password = "admin", "secret"
+	start := a.now()
+	_, oldPath := uploadFile(t, a, "expired.txt", "old")
+	a.now = func() time.Time { return start.Add(30 * time.Minute) }
+	_, earlierPath := uploadFile(t, a, "earlier.txt", "earlier")
+	a.now = func() time.Time { return start.Add(40 * time.Minute) }
+	_, newerPath := uploadFile(t, a, "<script>.txt", "newer")
+	_, incompletePath := uploadFile(t, a, "incomplete.txt", "bad")
+	if err := os.Remove(filepath.Join(a.dir, strings.TrimPrefix(incompletePath, "/"), "content")); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Mkdir(filepath.Join(a.dir, ".upload-in-progress"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	// Expired files are excluded at the boundary, even before cleanup removes them.
+	a.now = func() time.Time { return start.Add(time.Hour) }
+	r := httptest.NewRequest("GET", "/api/files", nil)
+	r.SetBasicAuth("admin", "secret")
+	w := httptest.NewRecorder()
+	a.handler().ServeHTTP(w, r)
+	if w.Code != 200 {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	var response struct {
+		Files []listedFile `json:"files"`
+		Now   time.Time    `json:"now"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+		t.Fatal(err)
+	}
+	if len(response.Files) != 2 {
+		t.Fatalf("unexpected files: %+v", response.Files)
+	}
+	if response.Files[0].ID != strings.TrimPrefix(newerPath, "/") || response.Files[1].ID != strings.TrimPrefix(earlierPath, "/") {
+		t.Fatalf("files are not newest first: %+v", response.Files)
+	}
+	if response.Files[0].Filename != "<script>.txt" || response.Files[0].Size != 5 || response.Files[0].URL != a.baseURL+newerPath || !response.Now.Equal(a.now()) {
+		t.Fatalf("incorrect metadata: %+v", response)
+	}
+	if _, err := os.Stat(filepath.Join(a.dir, strings.TrimPrefix(oldPath, "/"))); err != nil {
+		t.Fatal("listing must not remove stored files")
+	}
+	a.now = func() time.Time { return start.Add(2 * time.Hour) }
+	w = httptest.NewRecorder()
+	a.handler().ServeHTTP(w, r)
+	if !strings.Contains(w.Body.String(), `"files":[]`) {
+		t.Fatalf("empty files must be an array: %s", w.Body.String())
+	}
+}
+
+func TestPublicPagesAndStorageFailure(t *testing.T) {
+	a := testRelay(t)
+	a.username, a.password = "admin", "secret"
+	for path, contentType := range map[string]string{"/": "text/html", "/styles.css": "text/css", "/upload.js": "text/javascript", "/healthz": "text/plain"} {
+		w := httptest.NewRecorder()
+		a.handler().ServeHTTP(w, httptest.NewRequest("GET", path, nil))
+		if w.Code != 200 || !strings.HasPrefix(w.Header().Get("Content-Type"), contentType) {
+			t.Fatalf("public route %s: %d %v", path, w.Code, w.Header())
+		}
+	}
+	if err := os.RemoveAll(a.dir); err != nil {
+		t.Fatal(err)
+	}
+	r := httptest.NewRequest("GET", "/api/files", nil)
+	r.SetBasicAuth("admin", "secret")
+	w := httptest.NewRecorder()
+	a.handler().ServeHTTP(w, r)
+	if w.Code != 500 {
+		t.Fatalf("unavailable storage: %d", w.Code)
+	}
+}
