@@ -1,4 +1,5 @@
-import { basicAuth, type RelayFile, type Settings } from "./model";
+import { basicAuth } from "./connection";
+import type { RelayFile, Settings } from "./types";
 
 export async function loadFiles(
   settings: Settings,

@@ -11,11 +11,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { loadFiles } from "../lib/api";
-import {
-  DEFAULT_SETTINGS,
-  normalizeBaseUrl,
-  type Settings,
-} from "../lib/model";
+import { DEFAULT_SETTINGS } from "../lib/config";
+import { normalizeBaseUrl } from "../lib/connection";
+import type { Settings } from "../lib/types";
 import { writeSettings } from "../lib/storage";
 import { Button, colors, IconButton, s } from "./ui";
 

@@ -109,8 +109,9 @@ See its README for local development and signed APK build instructions.
 Go 1.26 or later, standard library only:
 
 ```sh
-go test -race ./...
-go vet ./...
+go test -race .
+go vet .
+node --test web/tests/*.test.js
 PUBLIC_BASE_URL=http://localhost:8080 go run .
 ```
 
@@ -118,3 +119,20 @@ PUBLIC_BASE_URL=http://localhost:8080 go run .
 Uploads stream to temporary files and become visible only after completion.
 The final Docker image is a non-root static Go binary with a read-only root
 filesystem and a writable data volume.
+
+## Code layout
+
+| Location | Responsibility |
+| --- | --- |
+| `main.go`, `config.go`, `server.go` | Entry point, environment validation, server lifecycle and healthcheck |
+| `handler.go`, `auth.go`, `assets.go` | Routes, security headers, dashboard authentication and embedded web assets |
+| `upload.go`, `download.go`, `files.go` | Multipart uploads, attachment downloads and active-file API |
+| `relay.go`, `storage.go` | Relay state, persisted metadata, startup recovery and expiry cleanup |
+| `web/` | HTML and module entry points; feature controllers/views and shared styles in `web/assets/` |
+| `mobile/src/` | Expo routes, screen composition, dashboard components, device hooks and services |
+
+Go tests sit alongside the responsibility they exercise. The web code uses
+native ES modules without a bundler or dependencies; its module graph is embedded
+in the Go binary. Docker excludes the mobile checkout and copies only server
+sources and web assets. Root Go checks target this single-package service so
+they do not traverse third-party Go snippets under `mobile/node_modules`.

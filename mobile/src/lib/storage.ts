@@ -1,5 +1,7 @@
 import * as SecureStore from "expo-secure-store";
-import { DEFAULT_SETTINGS, normalizeBaseUrl, type Settings } from "./model";
+import { DEFAULT_SETTINGS } from "./config";
+import { normalizeBaseUrl } from "./connection";
+import type { Settings } from "./types";
 
 const KEY = "file-relay.settings.v1";
 export async function readSettings(): Promise<Settings> {

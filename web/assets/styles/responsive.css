@@ -1,0 +1,149 @@
+@media (min-width: 1400px) {
+  .shell {
+    padding-top: 64px;
+  }
+}
+@media (max-width: 760px) {
+  .nav {
+    padding: 0 20px;
+    gap: 26px;
+    min-height: 68px;
+  }
+  .nav-note {
+    display: none;
+  }
+  .navlinks {
+    gap: 20px;
+  }
+  .shell {
+    padding: 32px 20px 20px;
+  }
+  h1 {
+    font-size: 27px;
+  }
+  .heading {
+    gap: 12px;
+  }
+  .stats {
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    padding: 14px;
+  }
+  .stat-icon {
+    display: none;
+  }
+  .stat-value {
+    font-size: 23px;
+  }
+  .stat-note {
+    font-size: 10px;
+  }
+  .panel-top {
+    padding: 18px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .controls {
+    width: 100%;
+  }
+  input[type="search"] {
+    width: 100%;
+    min-width: 0;
+  }
+  th,
+  td {
+    padding: 15px;
+  }
+  table {
+    min-width: 640px;
+  }
+  .footer {
+    margin-top: 38px;
+  }
+  .upload-panel {
+    padding: 19px;
+  }
+  .upload-action p {
+    max-width: 160px;
+  }
+  .feature-row {
+    gap: 12px;
+  }
+  .panel-bottom {
+    padding: 14px 18px;
+  }
+  .expiry-clock {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 600px) {
+  .table-wrap {
+    overflow: visible;
+  }
+  table {
+    min-width: 0;
+    display: block;
+  }
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  tbody {
+    display: block;
+  }
+  tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding: 18px;
+    gap: 18px 12px;
+    border-top: 1px solid var(--line);
+  }
+  td {
+    padding: 0;
+    border: 0;
+    display: block;
+  }
+  .file-size {
+    padding-top: 6px;
+    text-align: right;
+  }
+  .expiry {
+    align-self: center;
+  }
+  .actions {
+    align-self: end;
+  }
+  .file-cell {
+    gap: 10px;
+  }
+  .file-icon {
+    width: 30px;
+    height: 36px;
+  }
+  .expiry-clock {
+    display: inline;
+  }
+  .icon-button {
+    width: 32px;
+    height: 32px;
+  }
+  .panel-bottom {
+    font-size: 9px;
+  }
+  .link-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

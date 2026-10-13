@@ -1,14 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { basicAuth, normalizeBaseUrl } from "../src/lib/connection.ts";
+import { formatDuration } from "../src/lib/format.ts";
 import {
-  basicAuth,
-  formatDuration,
   isUploadResult,
-  normalizeBaseUrl,
   safeFilename,
   visibleFiles,
-  type RelayFile,
-} from "../src/lib/model.ts";
+} from "../src/lib/files.ts";
+import type { RelayFile } from "../src/lib/types.ts";
 
 const now = Date.parse("2026-10-13T12:00:00Z");
 const file = (

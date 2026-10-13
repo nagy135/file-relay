@@ -3,6 +3,13 @@
 An Expo SDK 57 / React Native app using the existing relay API. The source is
 in this subfolder; the Go service and web dashboard require no changes.
 
+`src/screens/Dashboard.tsx` composes the screen. Its presentational sections live
+in `src/components/dashboard/`, while `src/hooks/` owns settings initialization,
+foreground polling, incoming shares, upload queue state, link actions, and
+feedback. `src/lib/` separates domain types, connection validation, formatting,
+file selection, secure persistence, shared-file caching, and HTTP transport.
+Expo Router route files stay in `src/app/`; device effects stay out of UI components.
+
 ## Use it
 
 1. Install `dist/file-relay-1.0.0.apk` on an Android phone (Android 7 or newer;
