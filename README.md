@@ -102,6 +102,10 @@ Public upload and download endpoints retain their existing behavior.
 
 ## Development
 
+The Android Expo app is in [`mobile/`](mobile/README.md). It mirrors the
+dashboard and accepts files through Android's **Share → File Relay** action.
+See its README for local development and signed APK build instructions.
+
 Go 1.26 or later, standard library only:
 
 ```sh
