@@ -1,5 +1,6 @@
 import * as FileSystem from "expo-file-system/legacy";
 import { isUploadResult } from "./files";
+import { DEFAULT_EXPIRY_SECONDS, uploadParameters } from "./expiry";
 import type { QueueItem, UploadResult } from "./types";
 
 export class UploadError extends Error {
@@ -15,6 +16,7 @@ export async function uploadFile(
   baseUrl: string,
   item: QueueItem,
   onProgress: (value: number) => void,
+  expiresIn = DEFAULT_EXPIRY_SECONDS,
 ): Promise<UploadResult> {
   const task = FileSystem.createUploadTask(
     `${baseUrl}/upload`,
@@ -24,6 +26,7 @@ export async function uploadFile(
       uploadType: FileSystem.FileSystemUploadType.MULTIPART,
       fieldName: "file",
       mimeType: item.mimeType,
+      parameters: uploadParameters(expiresIn),
     },
     (event) => {
       onProgress(
@@ -50,14 +53,20 @@ export async function uploadFile(
       "Upload interrupted. Check the dashboard before sending it again.",
       true,
     );
-  if (response.status !== 201)
+  if (response.status !== 201) {
+    let serverError: string | undefined;
+    try {
+      const body = JSON.parse(response.body);
+      if (typeof body.error === "string") serverError = body.error;
+    } catch {}
     throw new UploadError(
       response.status === 413
         ? "This file exceeds the 200 MB limit."
         : response.status === 503
           ? "The relay is busy. Try again in a moment."
-          : `Upload failed (HTTP ${response.status}).`,
+          : serverError || `Upload failed (HTTP ${response.status}).`,
     );
+  }
   let result: unknown;
   try {
     result = JSON.parse(response.body);
@@ -70,6 +79,14 @@ export async function uploadFile(
   if (!isUploadResult(result, item.size))
     throw new UploadError(
       "The server accepted the file but returned invalid metadata. Check the dashboard.",
+      true,
+    );
+  if (
+    Date.parse(result.expires_at) - Date.parse(result.uploaded_at) !==
+    expiresIn * 1000
+  )
+    throw new UploadError(
+      "The server accepted the file with a different expiry. Check the dashboard before uploading again.",
       true,
     );
   return result;

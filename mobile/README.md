@@ -12,7 +12,7 @@ Expo Router route files stay in `src/app/`; device effects stay out of UI compon
 
 ## Use it
 
-1. Install `dist/file-relay-1.0.0.apk` on an Android phone (Android 7 or newer;
+1. Install `dist/file-relay-1.2.0.apk` on an Android phone (Android 7 or newer;
    ARM64 or ARMv7). The release APK includes its JavaScript bundle and works
    without Metro, Expo Go, or an Expo account.
 2. In Files, Photos, or any other app, select one or more files and choose
@@ -22,11 +22,54 @@ Expo Router route files stay in `src/app/`; device effects stay out of UI compon
 4. Open **Settings** and enter the same credentials used for `/dashboard` to
    see all active uploads. The public upload flow also works without signing in.
 
+Uploads work immediately with the saved default lifetime. **Settings → Default
+upload expiry** saves a device-only preference (initially 1 hour) that survives
+app restarts. Changing this preference does not require reconnecting to the
+dashboard. The web uploader's default remains unchanged. To choose another, tap
+**Set link expiry (optional)** in the shared-file queue. Available choices run
+from 1 hour through 1 month (30 days); the choice applies to each file in that
+upload batch and starts when each upload completes. The native upload task adds
+an `expires_in` multipart text parameter containing seconds. Default uploads
+omit it and remain compatible with the existing server. Non-default choices
+require the updated server. The displayed expiry comes from the response;
+the app reports an error if the server returns a different lifetime.
+
 The dashboard includes active-file/storage totals, filename search, all four
 sort orders, copy/share/download actions, pull to refresh, automatic refresh
 every 15 seconds while active, and live expiry bars. Expired files disappear
 locally at their expiry time. Time is synchronized with the server's `now`;
 each file's actual `uploaded_at`/`expires_at` determines its lifetime.
+
+## System appearance
+
+The app follows the phone's light or dark mode, including changes while it is
+open. `src/theme/ThemeProvider.tsx` uses React Native's `useColorScheme()` hook,
+which subscribes to the native `Appearance` API. It selects a shared palette
+from `src/theme/colors.ts`; components consume it through `useTheme()`.
+Style sheets are created once for each palette. Dashboard cards, search,
+settings, upload progress, errors, and toast messages all use the same theme.
+If the platform does not report a theme, the app falls back to light mode.
+
+`app.json` uses `"userInterfaceStyle": "automatic"`, with `expo-system-ui`
+installed and configured so Android does not lock the activity to light mode.
+The root layout updates navigation's theme, the native root background, and
+status/navigation bar colors using `expo-status-bar` and `expo-navigation-bar`;
+the splash screen has a dark background too. Android's system controls its
+keyboard theme. There is no separate theme preference to save in the app.
+
+```tsx
+import { View, useColorScheme } from "react-native";
+import { darkColors, lightColors } from "./src/theme/colors";
+
+function Example() {
+  const scheme = useColorScheme(); // "light", "dark", or null
+  const colors = scheme === "dark" ? darkColors : lightColors;
+  return <View style={{ backgroundColor: colors.bg }} />;
+}
+```
+
+References: [React Native useColorScheme](https://reactnative.dev/docs/0.86/usecolorscheme),
+[Expo appearance configuration](https://docs.expo.dev/develop/user-interface/color-themes/).
 
 ## How receiving shares works
 
@@ -115,3 +158,9 @@ multiple-file sharing from Android Files, upload completion, and storage totals
 were checked. Downloaded test files matched the original bytes. Type checking,
 lint, the five logic tests, all 21 Expo Doctor checks, and APK signature
 verification passed. The APK's manifest includes no storage permissions.
+
+Version 1.1.0 was installed as an update and checked in the Android 16 emulator
+in both light and dark mode. Switching the system theme while the dashboard,
+settings, and shared-file queue were open updated their colors and both system
+bars. The app stayed running; unsaved settings edits and queued files were
+preserved across theme changes.

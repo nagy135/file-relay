@@ -28,7 +28,7 @@ func TestPrepareStoragePreservesActiveUploadsAndRemovesInterruptedOnes(t *testin
 		t.Fatalf("active upload was lost: %v", err)
 	}
 	start := a.now()
-	a.now = func() time.Time { return start.Add(retention) }
+	a.now = func() time.Time { return start.Add(defaultRetention) }
 	if err := a.prepareStorage(); err != nil {
 		t.Fatal(err)
 	}

@@ -41,7 +41,7 @@ func runServer(ctx context.Context, app *relay) error {
 		}
 		close(done)
 	}()
-	log.Printf("listening on %s; public URL %s; files expire after %s", server.Addr, app.baseURL, retention)
+	log.Printf("listening on %s; public URL %s; default file lifetime %s, maximum %s", server.Addr, app.baseURL, defaultRetention, maxRetention)
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

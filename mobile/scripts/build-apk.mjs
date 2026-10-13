@@ -93,7 +93,8 @@ run(
   ],
   path.join(root, "android"),
 );
-const output = path.join(root, "dist/file-relay-1.0.0.apk");
+const { expo } = JSON.parse(readFileSync(path.join(root, "app.json"), "utf8"));
+const output = path.join(root, `dist/file-relay-${expo.version}.apk`);
 mkdirSync(path.dirname(output), { recursive: true });
 copyFileSync(
   path.join(root, "android/app/build/outputs/apk/release/app-release.apk"),

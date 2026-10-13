@@ -1,9 +1,9 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Alert, Text, View } from "react-native";
-import { Button, colors, IconButton, s } from "../ui";
+import { Button, IconButton } from "../ui";
 import { formatSize } from "../../lib/format";
 import type { QueueItem } from "../../lib/types";
 import { LinkActions } from "./LinkActions";
-import { styles } from "./styles";
 
 export function QueueItemCard({
   item,
@@ -22,6 +22,7 @@ export function QueueItemCard({
   onCopy: (url: string) => Promise<void>;
   onShare: (url: string) => Promise<void>;
 }) {
+  const { colors, s, styles } = useTheme();
   return (
     <View style={styles.queueItem}>
       <View style={s.between}>

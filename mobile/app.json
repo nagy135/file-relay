@@ -2,14 +2,14 @@
   "expo": {
     "name": "File Relay",
     "slug": "file-relay-mobile",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "scheme": "file-relay",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "android": {
       "package": "tech.infiniter.filerelay",
-      "versionCode": 1,
+      "versionCode": 3,
       "permissions": [],
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -51,11 +51,21 @@
         {
           "backgroundColor": "#F7F8FA",
           "image": "./assets/icon.png",
-          "imageWidth": 90
+          "imageWidth": 90,
+          "dark": {
+            "backgroundColor": "#121419"
+          }
         }
       ],
       "./plugins/with-local-signing.cjs",
-      "expo-font"
+      "expo-font",
+      "expo-system-ui",
+      [
+        "expo-navigation-bar",
+        {
+          "enforceContrast": false
+        }
+      ]
     ]
   }
 }

@@ -1,8 +1,9 @@
 # File relay
 
 A public file relay: upload one file, receive a random UUIDv4 download URL.
-Files expire exactly one hour after a completed upload. Downloads do not
-extend expiry. Public uploads and downloads need no account or upload token.
+Uploaders can choose a lifetime from 1 hour to 30 days (one month), starting
+when the upload completes. The default is 1 hour. Downloads do not extend
+expiry. Public uploads and downloads need no account or upload token.
 A password-protected dashboard lists active files at `/dashboard`.
 
 ## Run with Docker Compose
@@ -33,14 +34,43 @@ Successful uploads return HTTP 201 and JSON:
 }
 ```
 
+### Optional link expiry
+
+`POST /upload` accepts an optional multipart text field named `expires_in`.
+Its value is a whole number of **seconds**, from **3600** through **2592000**,
+inclusive. One month means exactly 30 days. Omitting this field preserves
+the existing 1-hour default; no client update is required for old uploads.
+Send exactly one `file` and at most one `expires_in`, in either order.
+Invalid, empty, out-of-range, or repeated values return HTTP 400 and leave no
+published file. Unknown fields and additional files are still rejected.
+
+```sh
+# Default lifetime: no extra parameter required.
+curl -fsS -F 'file=@test.txt' http://localhost:13006/upload
+
+# Keep the file for one day.
+curl -fsS -F 'file=@test.txt' -F 'expires_in=86400' http://localhost:13006/upload
+
+# Keep the file for one month (30 days).
+curl -fsS -F 'file=@test.txt' -F 'expires_in=2592000' http://localhost:13006/upload
+```
+
+The response schema is unchanged. `expires_at` contains the chosen expiry,
+which is persisted in the file's metadata and used by downloads, listings,
+and cleanup even after a restart. Existing files retain their stored expiry.
+The web uploader and Android share queue hide the duration choices behind
+**Set link expiry (optional)**; selecting a duration is never required.
+Deploy the updated server before using non-default durations in the new APK.
+
 The `Location` response header also contains the download URL. Downloads use
 `Content-Disposition: attachment` with the original filename. HEAD requests and
 byte ranges are supported. Unknown and expired links return HTTP 404.
 
 The limit is **200 MB (200,000,000 bytes)** per file, including files exactly at
 the limit. Larger files return HTTP 413. Requests must contain exactly one
-multipart `file` field. The full request has an additional 1 MiB allowance for
-multipart headers. At most four uploads are accepted concurrently; additional
+multipart `file` field, with an optional `expires_in` text field. The full
+request has an additional 1 MiB allowance for multipart headers and fields.
+At most four uploads are accepted concurrently; additional
 uploads return HTTP 503 with `Retry-After: 5`.
 
 ## nixpi
@@ -98,7 +128,7 @@ for its remaining lifetime. It includes filename search, sorting, copy/download
 actions, active file and storage totals, and automatic refresh every 15 seconds.
 Expired files disappear immediately from the listing, even before disk cleanup.
 Older uploads keep their original expiry; each row uses its stored lifetime.
-Public upload and download endpoints retain their existing behavior.
+The uploader's optional expiry control selects the lifetime of new files.
 
 ## Development
 
@@ -126,7 +156,7 @@ filesystem and a writable data volume.
 | --- | --- |
 | `main.go`, `config.go`, `server.go` | Entry point, environment validation, server lifecycle and healthcheck |
 | `handler.go`, `auth.go`, `assets.go` | Routes, security headers, dashboard authentication and embedded web assets |
-| `upload.go`, `download.go`, `files.go` | Multipart uploads, attachment downloads and active-file API |
+| `upload.go`, `retention.go`, `download.go`, `files.go` | Multipart uploads, optional lifetime validation, attachment downloads and active-file API |
 | `relay.go`, `storage.go` | Relay state, persisted metadata, startup recovery and expiry cleanup |
 | `web/` | HTML and module entry points; feature controllers/views and shared styles in `web/assets/` |
 | `mobile/src/` | Expo routes, screen composition, dashboard components, device hooks and services |

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -28,7 +29,32 @@ func (a *relay) upload(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusBadRequest, "expected multipart/form-data with one file field")
 		return
 	}
+	validFor := defaultRetention
+	hasRetention := false
+	readExpiry := func(part *multipart.Part) bool {
+		if hasRetention || part.FormName() != "expires_in" || part.FileName() != "" {
+			fail(w, http.StatusBadRequest, "expected one file and at most one expires_in field")
+			return false
+		}
+		value, err := readRetention(part)
+		if err != nil {
+			if errors.Is(err, errRetention) {
+				fail(w, http.StatusBadRequest, err.Error())
+			} else {
+				uploadReadError(w, err)
+			}
+			return false
+		}
+		validFor, hasRetention = value, true
+		return true
+	}
 	part, err := reader.NextPart()
+	for err == nil && part.FormName() == "expires_in" {
+		if !readExpiry(part) {
+			return
+		}
+		part, err = reader.NextPart()
+	}
 	if err != nil {
 		uploadReadError(w, err)
 		return
@@ -80,13 +106,18 @@ func (a *relay) upload(w http.ResponseWriter, r *http.Request) {
 		fail(w, http.StatusInsufficientStorage, "storage unavailable")
 		return
 	}
-	if _, err := reader.NextPart(); err != io.EOF {
+	for {
+		part, err := reader.NextPart()
+		if err == io.EOF {
+			break
+		}
 		if err != nil {
 			uploadReadError(w, err)
-		} else {
-			fail(w, http.StatusBadRequest, "expected exactly one file")
+			return
 		}
-		return
+		if !readExpiry(part) {
+			return
+		}
 	}
 	// Consume any multipart epilogue so the total request limit is enforced too.
 	if _, err := io.Copy(io.Discard, r.Body); err != nil {
@@ -94,7 +125,7 @@ func (a *relay) upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	now := a.now().UTC()
-	m := metadata{Filename: filename, Size: size, UploadedAt: now, ExpiresAt: now.Add(retention)}
+	m := metadata{Filename: filename, Size: size, UploadedAt: now, ExpiresAt: now.Add(validFor)}
 	encoded, err := json.Marshal(m)
 	if err != nil {
 		fail(w, http.StatusInternalServerError, "could not encode metadata")

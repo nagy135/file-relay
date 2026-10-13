@@ -11,10 +11,13 @@ export function useShareQueue(
   baseUrl: string,
   onUploaded: () => Promise<void>,
   onError: (message: string) => void,
+  defaultExpiresIn: number,
 ) {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [preparing, setPreparing] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [expiryOverride, setExpiryOverride] = useState<number | null>(null);
+  const expiresIn = expiryOverride ?? defaultExpiresIn;
   const uploadLock = useRef(false);
   const handledPayloads = useRef<unknown>(null);
   const incoming = useIncomingShare();
@@ -70,19 +73,24 @@ export function useShareQueue(
     if (uploadLock.current) return;
     uploadLock.current = true;
     setUploading(true);
+    let failed = false;
     try {
       for (const item of items.filter(
         (item) => item.status === "ready" || item.status === "error",
       )) {
         patch(item.id, { status: "uploading", error: undefined, progress: 0 });
         try {
-          const result = await uploadFile(baseUrl, item, (progress) =>
-            patch(item.id, { progress }),
+          const result = await uploadFile(
+            baseUrl,
+            item,
+            (progress) => patch(item.id, { progress }),
+            expiresIn,
           );
           patch(item.id, { status: "done", progress: 1, result });
           await removeCachedFile(item).catch(() => {});
           void onUploaded();
         } catch (error) {
+          failed = true;
           const uncertain = error instanceof UploadError && error.uncertain;
           patch(item.id, {
             status: uncertain ? "uncertain" : "error",
@@ -97,12 +105,14 @@ export function useShareQueue(
     } finally {
       uploadLock.current = false;
       setUploading(false);
+      if (!failed) setExpiryOverride(null);
     }
   }
   async function dismiss(item: QueueItem) {
     try {
       await removeCachedFile(item);
       setItems((old) => old.filter((value) => value.id !== item.id));
+      if (items.length === 1) setExpiryOverride(null);
     } catch (error) {
       onError(errorMessage(error));
     }
@@ -117,6 +127,8 @@ export function useShareQueue(
   }
   return {
     items,
+    expiresIn,
+    setExpiresIn: setExpiryOverride,
     uploading,
     preparing: incoming.isResolving || preparing > 0,
     readyCount: items.filter(

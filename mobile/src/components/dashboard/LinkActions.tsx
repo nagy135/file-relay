@@ -1,5 +1,6 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { View } from "react-native";
-import { Button, s } from "../ui";
+import { Button } from "../ui";
 
 export function LinkActions({
   url,
@@ -10,6 +11,7 @@ export function LinkActions({
   onCopy: (url: string) => Promise<void>;
   onShare: (url: string) => Promise<void>;
 }) {
+  const { s } = useTheme();
   return (
     <View style={s.row}>
       <Button

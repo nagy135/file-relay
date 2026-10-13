@@ -1,7 +1,6 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
 import { formatSize } from "../../lib/format";
-import { s } from "../ui";
-import { styles } from "./styles";
 
 export function FileSummary({
   count,
@@ -12,6 +11,7 @@ export function FileSummary({
   bytes: number;
   loaded: boolean;
 }) {
+  const { s, styles } = useTheme();
   return (
     <View style={styles.stats}>
       <View style={styles.stat}>

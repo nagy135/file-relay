@@ -15,7 +15,9 @@ import { DEFAULT_SETTINGS } from "../lib/config";
 import { normalizeBaseUrl } from "../lib/connection";
 import type { Settings } from "../lib/types";
 import { writeSettings } from "../lib/storage";
-import { Button, colors, IconButton, s } from "./ui";
+import { Button, IconButton } from "./ui";
+import { useTheme } from "../theme/ThemeProvider";
+import { ExpiryOptions } from "./ExpiryOptions";
 
 export default function SettingsModal({
   initial,
@@ -26,6 +28,7 @@ export default function SettingsModal({
   onClose: () => void;
   onSave: (settings: Settings) => void;
 }) {
+  const { colors, s, isDark } = useTheme();
   const [draft, setDraft] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +51,11 @@ export default function SettingsModal({
         );
       if (next.username.includes(":"))
         throw new Error("The dashboard username cannot contain a colon.");
-      if (next.username && !signOut) await loadFiles(next);
+      const connectionChanged =
+        next.baseUrl !== initial.baseUrl ||
+        next.username !== initial.username ||
+        next.password !== initial.password;
+      if (next.username && !signOut && connectionChanged) await loadFiles(next);
       await writeSettings(next);
       onSave(next);
     } catch (err) {
@@ -60,6 +67,7 @@ export default function SettingsModal({
   return (
     <Modal
       animationType="slide"
+      backdropColor={colors.bg}
       onRequestClose={() => {
         if (!busy) onClose();
       }}
@@ -71,7 +79,7 @@ export default function SettingsModal({
         >
           <ScrollView
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ padding: 24, gap: 22 }}
+            contentContainerStyle={{ padding: 20, gap: 16 }}
           >
             <View style={s.between}>
               <Text style={{ ...s.title, fontSize: 26 }}>Settings</Text>
@@ -91,6 +99,9 @@ export default function SettingsModal({
               <TextInput
                 accessibilityLabel="Relay URL"
                 style={s.input}
+                placeholderTextColor={colors.muted}
+                selectionColor={colors.accent}
+                keyboardAppearance={isDark ? "dark" : "light"}
                 value={draft.baseUrl}
                 onChangeText={(value) => update("baseUrl", value)}
                 autoCapitalize="none"
@@ -106,6 +117,9 @@ export default function SettingsModal({
               <TextInput
                 accessibilityLabel="Dashboard username"
                 style={s.input}
+                placeholderTextColor={colors.muted}
+                selectionColor={colors.accent}
+                keyboardAppearance={isDark ? "dark" : "light"}
                 value={draft.username}
                 onChangeText={(value) => update("username", value)}
                 autoCapitalize="none"
@@ -120,6 +134,9 @@ export default function SettingsModal({
               <TextInput
                 accessibilityLabel="Dashboard password"
                 style={s.input}
+                placeholderTextColor={colors.muted}
+                selectionColor={colors.accent}
+                keyboardAppearance={isDark ? "dark" : "light"}
                 value={draft.password}
                 onChangeText={(value) => update("password", value)}
                 secureTextEntry
@@ -132,6 +149,14 @@ export default function SettingsModal({
               Credentials are encrypted on this device. Sharing and uploading
               files does not require a dashboard account.
             </Text>
+            <ExpiryOptions
+              preference
+              value={draft.defaultExpirySeconds}
+              onChange={(seconds) =>
+                setDraft((old) => ({ ...old, defaultExpirySeconds: seconds }))
+              }
+              disabled={busy}
+            />
             {!!error && (
               <Text accessibilityRole="alert" style={s.error}>
                 {error}
@@ -139,7 +164,7 @@ export default function SettingsModal({
             )}
             {busy && <ActivityIndicator color={colors.accent} />}
             <Button
-              label={busy ? "Connecting…" : "Save connection"}
+              label={busy ? "Saving…" : "Save settings"}
               icon="check"
               primary
               disabled={busy}

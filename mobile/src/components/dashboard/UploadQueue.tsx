@@ -1,8 +1,9 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
-import { Button, Card, s } from "../ui";
+import { Button, Card } from "../ui";
 import type { QueueItem } from "../../lib/types";
 import { QueueItemCard } from "./QueueItemCard";
-import { styles } from "./styles";
+import { ExpiryOptions } from "../ExpiryOptions";
 
 type Props = {
   items: QueueItem[];
@@ -10,6 +11,8 @@ type Props = {
   uploading: boolean;
   preparing: boolean;
   readyCount: number;
+  expiresIn: number;
+  onExpiryChange: (seconds: number) => void;
   onUpload: () => Promise<void>;
   onDismiss: (item: QueueItem) => Promise<void>;
   onRetry: (item: QueueItem) => void;
@@ -23,12 +26,15 @@ export function UploadQueue({
   uploading,
   preparing,
   readyCount,
+  expiresIn,
+  onExpiryChange,
   onUpload,
   onDismiss,
   onRetry,
   onCopy,
   onShare,
 }: Props) {
+  const { s, styles } = useTheme();
   if (!items.length) return null;
   return (
     <Card>
@@ -53,6 +59,11 @@ export function UploadQueue({
           <Text style={s.body}>
             Uploading creates a public download link for each file.
           </Text>
+          <ExpiryOptions
+            value={expiresIn}
+            onChange={onExpiryChange}
+            disabled={uploading || preparing}
+          />
           <Button
             primary
             label={

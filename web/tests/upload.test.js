@@ -68,3 +68,29 @@ test("HTTP and network failures do not invoke upload success", (t) => {
     "Upload timed out. Try again.",
   ]);
 });
+
+test("chosen expiry is sent as a POST form parameter without changing the file", (t) => {
+  const previous = globalThis.XMLHttpRequest;
+  globalThis.XMLHttpRequest = TestRequest;
+  t.after(() => {
+    if (previous === undefined) delete globalThis.XMLHttpRequest;
+    else globalThis.XMLHttpRequest = previous;
+  });
+  const file = new File(["payload"], "month.txt");
+  sendFile(
+    file,
+    {
+      onProgress: () => {},
+      onSuccess: () => {},
+      onError: () => {},
+      onComplete: () => {},
+    },
+    2592000,
+  );
+  const xhr = TestRequest.latest;
+  assert.equal(xhr.url, "/upload");
+  assert.deepEqual([...xhr.body.keys()], ["file", "expires_in"]);
+  assert.equal(xhr.body.get("expires_in"), "2592000");
+  assert.equal(xhr.body.get("file").name, file.name);
+  assert.equal(xhr.body.get("file").size, file.size);
+});

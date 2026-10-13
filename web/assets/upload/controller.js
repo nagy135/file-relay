@@ -6,6 +6,7 @@ import { renderUploadResult } from "./result.js";
 export function startUpload() {
   const form = $("#upload"),
     input = $("#file"),
+    expiry = $("#expires-in"),
     button = $("#submit"),
     result = $("#result"),
     error = $("#error");
@@ -50,27 +51,31 @@ export function startUpload() {
     event.preventDefault();
     if (uploading || !selectedFile || selectedFile.size > 200000000) return;
     uploading = true;
-    button.disabled = input.disabled = true;
+    button.disabled = input.disabled = expiry.disabled = true;
     error.hidden = result.hidden = true;
     $("#upload-progress").hidden = false;
     $("#progress").value = 0;
     $("#progress-label").textContent = "0%";
-    sendFile(selectedFile, {
-      onProgress: (percentage) => {
-        $("#progress").value = percentage;
-        $("#progress-label").textContent =
-          percentage >= 100 ? "Finishing…" : `${Math.round(percentage)}%`;
+    sendFile(
+      selectedFile,
+      {
+        onProgress: (percentage) => {
+          $("#progress").value = percentage;
+          $("#progress-label").textContent =
+            percentage >= 100 ? "Finishing…" : `${Math.round(percentage)}%`;
+        },
+        onSuccess: (response) => renderUploadResult(result, response),
+        onError: (message) => {
+          error.textContent = message;
+          error.hidden = false;
+        },
+        onComplete: () => {
+          uploading = false;
+          button.disabled = input.disabled = expiry.disabled = false;
+          $("#upload-progress").hidden = true;
+        },
       },
-      onSuccess: (response) => renderUploadResult(result, response),
-      onError: (message) => {
-        error.textContent = message;
-        error.hidden = false;
-      },
-      onComplete: () => {
-        uploading = false;
-        button.disabled = input.disabled = false;
-        $("#upload-progress").hidden = true;
-      },
-    });
+      Number(expiry.value),
+    );
   });
 }

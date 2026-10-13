@@ -1,8 +1,8 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
-import { Button, Card, colors, IconButton, s } from "../ui";
+import { Button, Card, IconButton } from "../ui";
 import { formatDuration, formatSize } from "../../lib/format";
 import type { RelayFile } from "../../lib/types";
-import { styles } from "./styles";
 
 export default function FileCard({
   file,
@@ -17,6 +17,7 @@ export default function FileCard({
   share: () => void;
   download: () => void;
 }) {
+  const { colors, s, styles } = useTheme();
   const remaining = Math.max(0, Date.parse(file.expires_at) - now);
   const lifetime = Date.parse(file.expires_at) - Date.parse(file.uploaded_at);
   const fraction =
@@ -25,7 +26,7 @@ export default function FileCard({
     ? file.filename.split(".").pop()?.slice(0, 4).toUpperCase()
     : "FILE";
   return (
-    <View style={{ marginTop: 12 }}>
+    <View style={{ marginTop: 10 }}>
       <Card>
         <View style={s.row}>
           <View style={styles.fileIcon}>

@@ -1,4 +1,9 @@
-export type Settings = { baseUrl: string; username: string; password: string };
+export type Settings = {
+  baseUrl: string;
+  username: string;
+  password: string;
+  defaultExpirySeconds: number;
+};
 export type RelayFile = {
   id: string;
   url: string;

@@ -1,27 +1,19 @@
 import Feather from "@expo/vector-icons/Feather";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import type { ComponentProps, ReactNode } from "react";
+import { useTheme } from "../theme/ThemeProvider";
 
-export const colors = {
-  accent: "#6355D9",
-  ink: "#24252A",
-  muted: "#747982",
-  line: "#E7E9EE",
-  bg: "#F7F8FA",
-  soft: "#F1EFFF",
-  green: "#38846A",
-  red: "#B04444",
-};
 export function Icon({
   name,
-  color = colors.accent,
+  color,
   size = 19,
 }: {
   name: ComponentProps<typeof Feather>["name"];
   color?: string;
   size?: number;
 }) {
-  return <Feather name={name} size={size} color={color} />;
+  const { colors } = useTheme();
+  return <Feather name={name} size={size} color={color ?? colors.accent} />;
 }
 export function Button({
   label,
@@ -38,6 +30,7 @@ export function Button({
   disabled?: boolean;
   small?: boolean;
 }) {
+  const { colors, s } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
@@ -55,10 +48,12 @@ export function Button({
         <Icon
           name={icon}
           size={small ? 16 : 18}
-          color={primary ? "#FFF" : colors.accent}
+          color={primary ? colors.onPrimary : colors.accent}
         />
       )}
-      <Text style={[s.buttonText, primary && { color: "#FFF" }]}>{label}</Text>
+      <Text style={[s.buttonText, primary && { color: colors.onPrimary }]}>
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -73,6 +68,7 @@ export function IconButton({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  const { s } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
@@ -89,80 +85,6 @@ export function IconButton({
   );
 }
 export function Card({ children }: { children: ReactNode }) {
+  const { s } = useTheme();
   return <View style={s.card}>{children}</View>;
 }
-export const s = StyleSheet.create({
-  card: {
-    backgroundColor: "#FFF",
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 18,
-    padding: 18,
-    gap: 12,
-  },
-  row: { flexDirection: "row", alignItems: "center", gap: 10 },
-  between: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  title: {
-    color: colors.ink,
-    fontSize: 17,
-    fontWeight: "700",
-    letterSpacing: -0.3,
-  },
-  body: { color: colors.muted, fontSize: 13, lineHeight: 20 },
-  label: { color: colors.muted, fontSize: 12, fontWeight: "600" },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 11,
-    backgroundColor: colors.bg,
-    padding: 14,
-    color: colors.ink,
-    fontSize: 15,
-    minHeight: 48,
-  },
-  button: {
-    minHeight: 45,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-    borderRadius: 11,
-    borderWidth: 1,
-    borderColor: colors.line,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#FFF",
-  },
-  primary: { backgroundColor: colors.accent, borderColor: colors.accent },
-  small: { minHeight: 40, paddingHorizontal: 12, paddingVertical: 8 },
-  buttonText: { color: colors.accent, fontSize: 13, fontWeight: "700" },
-  iconButton: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 12,
-    backgroundColor: "#FFF",
-  },
-  error: {
-    color: colors.red,
-    fontSize: 13,
-    lineHeight: 20,
-    padding: 14,
-    backgroundColor: "#FFF0F0",
-    borderRadius: 12,
-  },
-  progress: {
-    height: 5,
-    backgroundColor: colors.soft,
-    borderRadius: 5,
-    overflow: "hidden",
-  },
-});

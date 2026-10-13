@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SettingsModal from "../components/SettingsModal";
-import { colors, s } from "../components/ui";
 import { ConnectionPrompt } from "../components/dashboard/ConnectionPrompt";
 import { DashboardIntro } from "../components/dashboard/DashboardIntro";
 import FileCard from "../components/dashboard/FileCard";
@@ -21,7 +20,7 @@ import {
 import { FileSummary } from "../components/dashboard/FileSummary";
 import { TopBar } from "../components/dashboard/TopBar";
 import { UploadQueue } from "../components/dashboard/UploadQueue";
-import { styles } from "../components/dashboard/styles";
+import { useTheme } from "../theme/ThemeProvider";
 import { useDashboardFiles } from "../hooks/useDashboardFiles";
 import { useFeedback } from "../hooks/useFeedback";
 import { useLinkActions } from "../hooks/useLinkActions";
@@ -31,6 +30,7 @@ import { visibleFiles } from "../lib/files";
 import type { SortOrder } from "../lib/types";
 
 export default function Dashboard() {
+  const { colors, s, styles } = useTheme();
   const feedback = useFeedback();
   const session = useSettings(feedback.setError);
   const dashboard = useDashboardFiles(session.settings, session.ready);
@@ -39,6 +39,7 @@ export default function Dashboard() {
     session.settings.baseUrl,
     dashboard.refresh,
     feedback.setError,
+    session.settings.defaultExpirySeconds,
   );
   const links = useLinkActions(feedback.setNotice, feedback.setError);
   const [showSettings, setShowSettings] = useState(false);
@@ -73,7 +74,7 @@ export default function Dashboard() {
           />
         }
         ListHeaderComponent={
-          <View style={{ gap: 18 }}>
+          <View style={{ gap: 12 }}>
             <DashboardIntro />
             {queue.preparing && (
               <View style={s.row}>
@@ -98,6 +99,8 @@ export default function Dashboard() {
               uploading={queue.uploading}
               preparing={queue.preparing}
               readyCount={queue.readyCount}
+              expiresIn={queue.expiresIn}
+              onExpiryChange={queue.setExpiresIn}
               onUpload={queue.upload}
               onDismiss={queue.dismiss}
               onRetry={queue.retry}
@@ -170,7 +173,9 @@ export default function Dashboard() {
       />
       {!!feedback.notice && (
         <View accessibilityLiveRegion="polite" style={styles.toast}>
-          <Text style={{ color: "#FFF", fontSize: 14 }}>{feedback.notice}</Text>
+          <Text style={{ color: colors.toastInk, fontSize: 14 }}>
+            {feedback.notice}
+          </Text>
         </View>
       )}
       {showSettings && (

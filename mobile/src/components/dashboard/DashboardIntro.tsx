@@ -1,8 +1,9 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
-import { Icon, s } from "../ui";
-import { styles } from "./styles";
+import { Icon } from "../ui";
 
 export function DashboardIntro() {
+  const { s, styles } = useTheme();
   return (
     <>
       <View>

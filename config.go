@@ -9,7 +9,8 @@ import (
 
 const (
 	maxFileSize          int64 = 200_000_000
-	retention                  = time.Hour
+	defaultRetention           = time.Hour
+	maxRetention               = 30 * 24 * time.Hour
 	maxConcurrentUploads       = 4
 	listenAddress              = ":8080"
 )

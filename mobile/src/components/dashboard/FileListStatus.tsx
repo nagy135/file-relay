@@ -1,6 +1,6 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
-import { colors, Icon, s } from "../ui";
-import { styles } from "./styles";
+import { Icon } from "../ui";
 
 export function EmptyFiles({
   loaded,
@@ -11,6 +11,7 @@ export function EmptyFiles({
   error: string;
   query: string;
 }) {
+  const { colors, s, styles } = useTheme();
   return (
     <View style={styles.empty}>
       <Icon
@@ -51,6 +52,7 @@ export function FileListFooter({
   activeCount: number;
   error: string;
 }) {
+  const { s, styles } = useTheme();
   return (
     <View style={styles.footer}>
       {authenticated && (

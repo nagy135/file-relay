@@ -1,5 +1,6 @@
+import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
-import { Button, Card, Icon, s } from "../ui";
+import { Button, Card, Icon } from "../ui";
 
 export function ConnectionPrompt({
   disabled,
@@ -8,6 +9,7 @@ export function ConnectionPrompt({
   disabled: boolean;
   onConnect: () => void;
 }) {
+  const { s } = useTheme();
   return (
     <Card>
       <View style={s.row}>

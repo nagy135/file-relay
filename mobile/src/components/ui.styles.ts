@@ -1,0 +1,80 @@
+import { StyleSheet } from "react-native";
+import type { ThemeColors } from "../theme/colors";
+
+export function createUIStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    card: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: 18,
+      padding: 14,
+      gap: 10,
+    },
+    row: { flexDirection: "row", alignItems: "center", gap: 10 },
+    between: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 10,
+    },
+    title: {
+      color: colors.ink,
+      fontSize: 17,
+      fontWeight: "700",
+      letterSpacing: -0.3,
+    },
+    body: { color: colors.muted, fontSize: 13, lineHeight: 20 },
+    label: { color: colors.muted, fontSize: 12, fontWeight: "600" },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: 11,
+      backgroundColor: colors.bg,
+      padding: 14,
+      color: colors.ink,
+      fontSize: 15,
+      minHeight: 48,
+    },
+    button: {
+      minHeight: 45,
+      paddingHorizontal: 16,
+      paddingVertical: 11,
+      borderRadius: 11,
+      borderWidth: 1,
+      borderColor: colors.line,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      backgroundColor: colors.surface,
+    },
+    primary: { backgroundColor: colors.primary, borderColor: colors.primary },
+    small: { minHeight: 40, paddingHorizontal: 12, paddingVertical: 8 },
+    buttonText: { color: colors.accent, fontSize: 13, fontWeight: "700" },
+    iconButton: {
+      width: 44,
+      height: 44,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+    },
+    error: {
+      color: colors.red,
+      fontSize: 13,
+      lineHeight: 20,
+      padding: 14,
+      backgroundColor: colors.errorBg,
+      borderRadius: 12,
+    },
+    progress: {
+      height: 5,
+      backgroundColor: colors.soft,
+      borderRadius: 5,
+      overflow: "hidden",
+    },
+  });
+}

@@ -74,7 +74,12 @@ test("relay origins reject unsafe schemes, embedded credentials, and endpoint pa
 });
 test("Basic authentication preserves Unicode credentials", () => {
   assert.equal(
-    basicAuth({ baseUrl: "", username: "viktor", password: "päss🔑" }),
+    basicAuth({
+      baseUrl: "",
+      username: "viktor",
+      password: "päss🔑",
+      defaultExpirySeconds: 3600,
+    }),
     `Basic ${Buffer.from("viktor:päss🔑").toString("base64")}`,
   );
 });
