@@ -15,9 +15,9 @@
   justify-content: center;
   text-align: center;
   min-height: 235px;
-  border: 1.5px dashed #d8d3ef;
+  border: 1.5px dashed var(--soft-line);
   border-radius: 10px;
-  background: #fcfbff;
+  background: var(--surface-hover);
   cursor: pointer;
   padding: 25px;
   transition:
@@ -30,7 +30,7 @@
   border-color: var(--accent);
 }
 .dropzone:focus-within {
-  outline: 3px solid #b4aaff;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 .dropzone input {
@@ -42,8 +42,8 @@
   cursor: pointer;
 }
 .upload-icon {
-  background: #eeebfd;
-  border: 1px solid #e6e1fb;
+  background: var(--soft);
+  border: 1px solid var(--soft-line);
   border-radius: 13px;
   width: 52px;
   height: 52px;
@@ -65,7 +65,7 @@
 }
 .drop-note {
   font-size: 11px;
-  color: #9799a5;
+  color: var(--muted);
   margin-top: 7px;
 }
 .upload-action {
@@ -104,7 +104,7 @@
 }
 .upload-action p {
   font-size: 11px;
-  color: #8b909a;
+  color: var(--muted);
   margin: 0;
 }
 .upload-action .primary {
@@ -121,8 +121,8 @@
 }
 .result {
   margin-top: 20px;
-  background: #f6f5ff;
-  border: 1px solid #e6e2fb;
+  background: var(--soft);
+  border: 1px solid var(--soft-line);
   border-radius: 9px;
   padding: 18px;
 }
@@ -153,12 +153,12 @@
 }
 .feature {
   font-size: 11px;
-  color: #9599a2;
+  color: var(--muted);
 }
 .feature strong {
   display: block;
   font-size: 12px;
-  color: #606572;
+  color: var(--muted);
   font-weight: 550;
   margin-bottom: 3px;
 }
@@ -175,7 +175,7 @@
   font-size: 12px;
 }
 .terminal small {
-  color: #979ca5;
+  color: var(--muted);
   font-size: 10px;
 }
 .terminal code {
@@ -183,7 +183,7 @@
   overflow-wrap: anywhere;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
-  color: #757487;
+  color: var(--muted);
   line-height: 1.9;
 }
 .terminal code span {

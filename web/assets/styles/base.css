@@ -6,15 +6,57 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  color: #24252a;
-  background: #f7f8fa;
+  color: var(--ink);
+  background: var(--bg);
   font-synthesis: none;
   font-size: 14px;
   line-height: 1.5;
+  color-scheme: light dark;
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-hover: #f9f9fc;
+  --ink: #24252a;
   --accent: #6355d9;
-  --muted: #747982;
+  --primary: #6355d9;
+  --primary-hover: #574ac6;
+  --on-primary: #ffffff;
+  --muted: #676d77;
   --line: #e7e9ee;
   --soft: #f1efff;
+  --soft-line: #d8d3ef;
+  --focus: #b4aaff;
+  --success: #38846a;
+  --warning: #a26b20;
+  --warning-bar: #d49b4b;
+  --error-bg: #fff7f2;
+  --error-line: #edd3c7;
+  --error-ink: #965437;
+  --toast-bg: #2f3040;
+  --toast-ink: #ffffff;
+}
+/* CSS re-evaluates this query whenever the system/browser preference changes. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121419;
+    --surface: #1c1f26;
+    --surface-hover: #242832;
+    --ink: #f2f3f7;
+    --accent: #b5abff;
+    --primary-hover: #7163e5;
+    --muted: #a2a8b4;
+    --line: #343946;
+    --soft: #2b2547;
+    --soft-line: #5b4d87;
+    --focus: #b5abff;
+    --success: #78c8aa;
+    --warning: #e9bc79;
+    --warning-bar: #e9bc79;
+    --error-bg: #331f25;
+    --error-line: #71434b;
+    --error-ink: #ffb09d;
+    --toast-bg: #f2f3f7;
+    --toast-ink: #121419;
+  }
 }
 * {
   box-sizing: border-box;
@@ -40,6 +82,10 @@ input,
 select {
   -webkit-tap-highlight-color: transparent;
 }
+input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
 button {
   cursor: pointer;
 }
@@ -51,7 +97,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid #b4aaff;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 [hidden] {

@@ -15,8 +15,8 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 11px 18px;
-  background: #2f3040;
-  color: white;
+  background: var(--toast-bg);
+  color: var(--toast-ink);
   font-size: 12px;
   border-radius: 8px;
   box-shadow: 0 6px 24px #0002;

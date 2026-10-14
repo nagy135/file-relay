@@ -1,5 +1,5 @@
 .topbar {
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 .nav {
@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  color: #24252a;
+  color: var(--ink);
   font-weight: 750;
   font-size: 19px;
   letter-spacing: -0.6px;
@@ -27,8 +27,8 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: var(--accent);
-  color: white;
+  background: var(--primary);
+  color: var(--on-primary);
   display: grid;
   place-items: center;
   font-size: 24px;
@@ -68,7 +68,7 @@
 .dot {
   width: 6px;
   height: 6px;
-  background: #4ca485;
+  background: var(--success);
   border-radius: 50%;
   display: inline-block;
 }
@@ -107,7 +107,7 @@ h1 {
 .button {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: white;
+  background: var(--surface);
   padding: 10px 16px;
   font-weight: 550;
   font-size: 12px;
@@ -115,21 +115,21 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #41434a;
+  color: var(--ink);
   white-space: nowrap;
 }
 .button:hover {
-  background: #f9f9fc;
+  background: var(--surface-hover);
   text-decoration: none;
 }
 .primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
   box-shadow: 0 2px 3px #6355d919;
 }
 .primary:hover {
-  background: #574ac6;
+  background: var(--primary-hover);
 }
 .plus {
   font-size: 19px;

@@ -5,13 +5,13 @@
   margin-bottom: 30px;
 }
 .stat {
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 11px;
   padding: 21px 24px;
 }
 .stat-label {
-  color: #676d77;
+  color: var(--muted);
   font-size: 12px;
   display: flex;
   justify-content: space-between;
@@ -40,11 +40,11 @@
   letter-spacing: 0;
 }
 .stat-note {
-  color: #969aa3;
+  color: var(--muted);
   font-size: 11px;
 }
 .panel {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
@@ -83,8 +83,8 @@ input[type="search"],
 select {
   border: 1px solid var(--line);
   border-radius: 7px;
-  background: #fff;
-  color: #656b75;
+  background: var(--surface);
+  color: var(--muted);
   padding: 8px 11px;
   font-size: 11px;
 }
@@ -105,12 +105,12 @@ table {
 }
 th {
   padding: 11px 24px;
-  background: #fafbfc;
+  background: var(--surface-hover);
   border-block: 1px solid var(--line);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #8a8e97;
+  color: var(--muted);
   font-weight: 550;
 }
 th:nth-child(1) {
@@ -128,7 +128,7 @@ th:nth-child(4) {
 }
 td {
   padding: 20px 24px;
-  border-bottom: 1px solid #f0f1f4;
+  border-bottom: 1px solid var(--line);
   font-size: 12px;
   vertical-align: middle;
 }
@@ -145,8 +145,8 @@ tr:last-child td {
   flex-shrink: 0;
   width: 36px;
   height: 42px;
-  border: 1px solid #e6e2fb;
-  background: #f6f4ff;
+  border: 1px solid var(--soft-line);
+  background: var(--soft);
   border-radius: 7px;
   display: grid;
   place-items: center;
@@ -165,29 +165,29 @@ tr:last-child td {
   white-space: nowrap;
   max-width: 100%;
   display: block;
-  color: #343640;
+  color: var(--ink);
 }
 .file-meta {
   font-size: 10px;
-  color: #969aa3;
+  color: var(--muted);
   margin-top: 4px;
 }
 .file-size {
-  color: #686d77;
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .expiry-label {
   display: flex;
   justify-content: space-between;
-  color: #676c76;
+  color: var(--muted);
   font-size: 11px;
   margin-bottom: 8px;
   gap: 8px;
 }
 .expiry-clock {
   font-size: 10px;
-  color: #9b9fa7;
+  color: var(--muted);
 }
 progress {
   display: block;
@@ -198,11 +198,11 @@ progress {
   height: 5px;
   border-radius: 10px;
   overflow: hidden;
-  background: #efedf8;
+  background: var(--soft);
   color: var(--accent);
 }
 progress::-webkit-progress-bar {
-  background: #efedf8;
+  background: var(--soft);
   border-radius: 10px;
 }
 progress::-webkit-progress-value {
@@ -214,16 +214,16 @@ progress::-moz-progress-bar {
   border-radius: 10px;
 }
 .expiring progress {
-  color: #d49b4b;
+  color: var(--warning-bar);
 }
 .expiring progress::-webkit-progress-value {
-  background: #d49b4b;
+  background: var(--warning-bar);
 }
 .expiring progress::-moz-progress-bar {
-  background: #d49b4b;
+  background: var(--warning-bar);
 }
 .expiring .expiry-label {
-  color: #b78437;
+  color: var(--warning);
 }
 .actions {
   text-align: right;
@@ -234,10 +234,10 @@ progress::-moz-progress-bar {
   height: 29px;
   display: inline-grid;
   place-items: center;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 6px;
-  color: #7a7d86;
+  color: var(--muted);
   vertical-align: middle;
   margin-left: 4px;
 }
@@ -262,7 +262,7 @@ progress::-moz-progress-bar {
   justify-content: space-between;
   gap: 15px;
   font-size: 10px;
-  color: #9398a2;
+  color: var(--muted);
 }
 .live {
   display: flex;
@@ -275,7 +275,7 @@ progress::-moz-progress-bar {
   color: var(--muted);
 }
 .empty h3 {
-  color: #434650;
+  color: var(--ink);
   font-size: 15px;
   margin: 14px 0 6px;
 }
@@ -296,7 +296,7 @@ progress::-moz-progress-bar {
 .footnote {
   margin: 22px 0 0;
   text-align: center;
-  color: #9398a2;
+  color: var(--muted);
   font-size: 11px;
 }
 .footer {
@@ -307,18 +307,18 @@ progress::-moz-progress-bar {
   margin-top: 60px;
   padding-top: 21px;
   font-size: 10px;
-  color: #999da6;
+  color: var(--muted);
 }
 .footer strong {
   font-weight: 500;
-  color: #737985;
+  color: var(--muted);
 }
 .error {
-  border: 1px solid #edd3c7;
-  background: #fff7f2;
+  border: 1px solid var(--error-line);
+  background: var(--error-bg);
   border-radius: 8px;
   padding: 13px 16px;
-  color: #965437;
+  color: var(--error-ink);
   font-size: 12px;
   margin-bottom: 18px;
 }

@@ -130,6 +130,15 @@ Expired files disappear immediately from the listing, even before disk cleanup.
 Older uploads keep their original expiry; each row uses its stored lifetime.
 The uploader's optional expiry control selects the lifetime of new files.
 
+## Web appearance
+
+The upload page and dashboard automatically follow the system/browser light or
+dark preference, including changes while the page is open. Shared CSS color
+variables in `web/assets/styles/base.css` define the light palette and a
+`@media (prefers-color-scheme: dark)` override. `color-scheme: light dark` and
+the matching HTML meta tag also adapt native controls and the initial canvas.
+No JavaScript listener or saved theme preference is needed.
+
 ## Development
 
 The Android Expo app is in [`mobile/`](mobile/README.md). It mirrors the
