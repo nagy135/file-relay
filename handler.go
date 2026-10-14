@@ -10,6 +10,7 @@ func (a *relay) handler() http.Handler {
 	mux.HandleFunc("GET /{$}", asset("index.html", "text/html; charset=utf-8"))
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("ok\n")) })
 	mux.HandleFunc("GET /styles.css", asset("styles.css", "text/css; charset=utf-8"))
+	mux.HandleFunc("GET /favicon.ico", asset("assets/favicon.ico", "image/vnd.microsoft.icon"))
 	mux.HandleFunc("GET /upload.js", asset("upload.js", "text/javascript; charset=utf-8"))
 	mux.HandleFunc("GET /dashboard.js", a.authenticate(asset("dashboard.js", "text/javascript; charset=utf-8")))
 	mux.HandleFunc("GET /dashboard", a.authenticate(asset("dashboard.html", "text/html; charset=utf-8")))

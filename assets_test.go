@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"io/fs"
+	"mime"
 	"net/http/httptest"
 	"path"
 	"regexp"
@@ -41,10 +42,7 @@ func TestEmbeddedAssetsAndAuthentication(t *testing.T) {
 			if w.Code != 200 || !bytes.Equal(w.Body.Bytes(), body) {
 				t.Fatalf("asset %s: %d, incorrect content", endpoint, w.Code)
 			}
-			wantType := "text/javascript"
-			if path.Ext(name) == ".css" {
-				wantType = "text/css"
-			}
+			wantType := mime.TypeByExtension(path.Ext(name))
 			if !strings.HasPrefix(w.Header().Get("Content-Type"), wantType) {
 				t.Fatalf("asset %s has incorrect MIME type: %s", endpoint, w.Header().Get("Content-Type"))
 			}
