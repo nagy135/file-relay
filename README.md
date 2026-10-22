@@ -62,9 +62,24 @@ The web uploader and Android share queue hide the duration choices behind
 **Set link expiry (optional)**; selecting a duration is never required.
 Deploy the updated server before using non-default durations in the new APK.
 
-The `Location` response header also contains the download URL. Downloads use
-`Content-Disposition: attachment` with the original filename. HEAD requests and
-byte ranges are supported. Unknown and expired links return HTTP 404.
+The `Location` response header also contains the download URL. Opening that URL
+in a browser shows the filename, size, expiry, and an explicit **Download file**
+button. This page works without JavaScript and gives mobile browsers a download
+started by a user tap rather than navigating straight to an attachment. The
+button links to `/download/{id}/{filename}`, with the filename URL-encoded.
+For `.ipa` packages the page also offers **Save as ZIP**: an IPA is already a ZIP
+archive, so this alternative serves identical bytes as `filename.ipa.zip` to
+bypass app-package handling. Rename the saved file back to `.ipa` when needed.
+This downloads the package; it does not install an iOS app.
+
+Existing direct-download clients such as curl still receive file bytes at the
+original UUID URL. HTML is returned only when `Accept` explicitly includes
+`text/html`; `?download=1` forces file bytes with any `Accept` header. Range
+requests also continue to receive file bytes at the original URL. Downloads use
+`Content-Disposition: attachment` with the original filename, including an ASCII
+fallback and UTF-8 filename for international names. HEAD requests and byte
+ranges are supported. Unknown, expired, and missing files return HTTP 404 on
+both the page and download routes.
 
 The limit is **200 MB (200,000,000 bytes)** per file, including files exactly at
 the limit. Larger files return HTTP 413. Requests must contain exactly one

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Download · File relay</title>
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/assets/styles/download.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="/"
+          ><span class="mark" aria-hidden="true">↗</span>file relay</a
+        >
+        <span class="nav-note">Temporary by design</span>
+      </nav>
+    </header>
+    <main class="shell upload-shell">
+      <div class="heading">
+        <div>
+          <p class="eyebrow">Ready when you are</p>
+          <h1>Your file is here.</h1>
+          <p class="subtitle">Save a copy before this link expires.</p>
+        </div>
+      </div>
+      <section class="panel upload-panel download-panel" aria-label="Download file">
+        <h2 class="download-filename">{{.Filename}}</h2>
+        <p class="subtitle">{{.Size}}</p>
+        <a class="button primary download-button" href="{{.DownloadURL}}" download="{{.Filename}}">Download file <span aria-hidden="true">↓</span></a>
+        <p class="download-note">On iPhone or iPad, find the saved file in Files → Downloads.</p>
+        {{if .ZipURL}}
+        <div class="download-alternative">
+          <p>Having trouble saving the app package?</p>
+          <a class="button" href="{{.ZipURL}}" download="{{.Filename}}.zip">Save as ZIP</a>
+          <p class="download-note">This saves the same package with a .zip extension. Rename it back to .ipa before using your installation tool.</p>
+        </div>
+        {{end}}
+        <p class="download-note">Available until {{.ExpiresAt}}.</p>
+      </section>
+    </main>
+  </body>
+</html>

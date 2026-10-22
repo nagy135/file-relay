@@ -17,6 +17,7 @@ func (a *relay) handler() http.Handler {
 	mux.HandleFunc("GET /assets/{path...}", a.webAsset)
 	mux.HandleFunc("GET /api/files", a.authenticate(a.listFiles))
 	mux.HandleFunc("POST /upload", a.upload)
+	mux.HandleFunc("GET /download/{id}/{filename}", a.download)
 	mux.HandleFunc("GET /{id}", a.download)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
