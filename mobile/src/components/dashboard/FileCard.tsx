@@ -1,3 +1,4 @@
+import { isVideo } from "../../lib/video";
 import { useTheme } from "../../theme/ThemeProvider";
 import { Text, View } from "react-native";
 import { Button, Card, IconButton } from "../ui";
@@ -10,12 +11,14 @@ export default function FileCard({
   copy,
   share,
   download,
+  play,
 }: {
   file: RelayFile;
   now: number;
   copy: () => void;
   share: () => void;
   download: () => void;
+  play: () => void;
 }) {
   const { colors, s, styles } = useTheme();
   const remaining = Math.max(0, Date.parse(file.expires_at) - now);
@@ -78,6 +81,9 @@ export default function FileCard({
             />
           </View>
         </View>
+        {isVideo(file.filename) && (
+          <Button label="Play video" icon="play" onPress={play} />
+        )}
         <View style={s.between}>
           <View style={s.row}>
             <Button label="Copy" icon="copy" small onPress={copy} />

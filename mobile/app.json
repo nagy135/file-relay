@@ -2,14 +2,14 @@
   "expo": {
     "name": "File Relay",
     "slug": "file-relay-mobile",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "scheme": "file-relay",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "android": {
       "package": "tech.infiniter.filerelay",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [],
       "blockedPermissions": [
         "android.permission.READ_EXTERNAL_STORAGE",

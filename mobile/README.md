@@ -12,7 +12,7 @@ Expo Router route files stay in `src/app/`; device effects stay out of UI compon
 
 ## Use it
 
-1. Install `dist/file-relay-1.2.0.apk` on an Android phone (Android 7 or newer;
+1. Install `dist/file-relay-1.3.0.apk` on an Android phone (Android 7 or newer;
    ARM64 or ARMv7). The release APK includes its JavaScript bundle and works
    without Metro, Expo Go, or an Expo account.
 2. In Files, Photos, or any other app, select one or more files and choose
@@ -35,10 +35,13 @@ require the updated server. The displayed expiry comes from the response;
 the app reports an error if the server returns a different lifetime.
 
 The dashboard includes active-file/storage totals, filename search, all four
-sort orders, copy/share/download actions, pull to refresh, automatic refresh
+sort orders, copy/share/download actions, and a Play button for video files, pull to refresh, automatic refresh
 every 15 seconds while active, and live expiry bars. Expired files disappear
 locally at their expiry time. Time is synchronized with the server's `now`;
 each file's actual `uploaded_at`/`expires_at` determines its lifetime.
+
+Play opens the relay browser player with `?play=1`, ready to stream without
+saving the file first. Browser codec support and the existing link expiry apply.
 
 ## System appearance
 

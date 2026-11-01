@@ -29,6 +29,7 @@
       <section class="panel upload-panel download-panel" aria-label="Download file">
         <h2 class="download-filename">{{.Filename}}</h2>
         <p class="subtitle">{{.Size}}</p>
+        {{if .PlayURL}}<a class="button primary download-button" href="{{.PlayURL}}">Play video ▷</a>{{end}}
         <a class="button primary download-button" href="{{.DownloadURL}}" download="{{.Filename}}">Download file <span aria-hidden="true">↓</span></a>
         <p class="download-note">On iPhone or iPad, find the saved file in Files → Downloads.</p>
         {{if .ZipURL}}

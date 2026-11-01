@@ -1,3 +1,4 @@
+import { playbackURL } from "../lib/video";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -146,6 +147,9 @@ export default function Dashboard() {
             }}
             share={() => {
               void links.share(item.url);
+            }}
+            play={() => {
+              void links.download(playbackURL(item.url));
             }}
             download={() => {
               void links.download(item.url);

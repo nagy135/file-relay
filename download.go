@@ -38,10 +38,25 @@ func (a *relay) download(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		w.Header().Add("Vary", "Accept")
-		if r.URL.Query().Get("download") != "1" && r.Header.Get("Range") == "" && acceptsHTML(r.Header.Get("Accept")) {
+		if r.URL.Query().Get("download") != "1" && r.URL.Query().Get("play") != "1" && r.Header.Get("Range") == "" && acceptsHTML(r.Header.Get("Accept")) {
 			serveDownloadPage(w, r, id, m)
 			return
 		}
+	}
+	if r.URL.Query().Get("play") == "1" && r.URL.Query().Get("download") != "1" {
+		contentType := videoContentType(m.Filename)
+		if contentType == "" {
+			http.Error(w, "This file is not a video", http.StatusUnsupportedMediaType)
+			return
+		}
+		if r.URL.Query().Get("stream") != "1" {
+			serveVideoPage(w, r, id, m)
+			return
+		}
+		w.Header().Set("Content-Disposition", mime.FormatMediaType("inline", map[string]string{"filename": filename}))
+		w.Header().Set("Content-Type", contentType)
+		http.ServeContent(w, r, filename, m.UploadedAt, f)
+		return
 	}
 	w.Header().Set("Content-Disposition", attachmentDisposition(filename))
 	w.Header().Set("Content-Type", "application/octet-stream")

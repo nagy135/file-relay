@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{.Filename}} · File relay</title>
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/assets/styles/download.css" />
+  </head>
+  <body>
+    <header class="topbar"><nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="/"><span class="mark" aria-hidden="true">↗</span>file relay</a>
+      <span class="nav-note">Temporary by design</span>
+    </nav></header>
+    <main class="shell">
+      <div class="heading"><div><p class="eyebrow">Press play</p><h1>Your video is here.</h1>
+        <p class="subtitle">Stream from the relay while this file is available.</p></div></div>
+      <section class="panel upload-panel download-panel" aria-label="Video player">
+        <h2 class="download-filename">{{.Filename}}</h2>
+        <video class="video-player" controls playsinline preload="metadata" src="{{.StreamURL}}" aria-label="{{.Filename}}">
+          Your browser cannot play this video. Use the download link below.
+        </video>
+        <p class="download-note">Playback depends on your browser's support for the video's format and codec. If it cannot play, download the file to use another player.</p>
+        <a class="button download-button" href="{{.DownloadURL}}" download="{{.Filename}}">Download file ↓</a>
+        <p class="download-note">Available until {{.ExpiresAt}}. Playback does not extend expiry.</p>
+      </section>
+    </main>
+  </body>
+</html>

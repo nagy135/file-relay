@@ -34,12 +34,15 @@ func acceptsHTML(accept string) bool {
 
 func serveDownloadPage(w http.ResponseWriter, r *http.Request, id string, m metadata) {
 	data := struct {
-		Filename, Size, ExpiresAt, DownloadURL, ZipURL string
+		Filename, Size, ExpiresAt, DownloadURL, ZipURL, PlayURL string
 	}{
 		Filename:    m.Filename,
 		Size:        fmt.Sprintf("%d bytes", m.Size),
 		ExpiresAt:   m.ExpiresAt.UTC().Format(time.RFC1123),
 		DownloadURL: "/download/" + id + "/" + url.PathEscape(m.Filename),
+	}
+	if videoContentType(m.Filename) != "" {
+		data.PlayURL = "/" + id + "?play=1"
 	}
 	if strings.EqualFold(filepath.Ext(m.Filename), ".ipa") {
 		data.ZipURL = "/download/" + id + "/" + url.PathEscape(m.Filename+".zip")

@@ -1,3 +1,4 @@
+import { isVideo, playbackURL } from "../shared/video.js";
 import { element } from "../shared/dom.js";
 import {
   formatSize as size,
@@ -11,7 +12,9 @@ function icon(kind) {
   const path = document.createElementNS(svg.namespaceURI, "path");
   path.setAttribute(
     "d",
-    kind === "copy"
+    kind === "play"
+      ? "M6 3l11 7-11 7z"
+      : kind === "copy"
       ? "M7 6V3h10v11h-3 M3 6h11v11H3z"
       : "M10 2v10m-4-4 4 4 4-4M3 13v4h14v-4",
   );
@@ -86,6 +89,14 @@ export function createFileRow(file, now, toast) {
   download.title = `Download ${file.filename}`;
   download.setAttribute("aria-label", download.title);
   download.append(icon("download"));
+  if (isVideo(file.filename)) {
+    const play = element("a", "icon-button");
+    play.href = playbackURL(file.url);
+    play.title = `Play ${file.filename}`;
+    play.setAttribute("aria-label", play.title);
+    play.append(icon("play"));
+    actions.append(play);
+  }
   actions.append(copy, download);
   row.append(nameCell, sizeCell, expiryCell, actions);
   return row;

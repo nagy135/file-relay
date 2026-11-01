@@ -81,6 +81,22 @@ fallback and UTF-8 filename for international names. HEAD requests and byte
 ranges are supported. Unknown, expired, and missing files return HTTP 404 on
 both the page and download routes.
 
+### Video playback
+
+Video rows in the web and Android dashboards include **Play**, which opens
+`/{id}?play=1` in the browser with the file loaded into a video player. The
+normal file landing page also offers **Play video**. Copy this player URL to
+share playback directly. Downloads keep their existing behavior.
+
+The player streams `/{id}?play=1&stream=1` with a video MIME type and inline
+disposition. HEAD and byte ranges support seeking without downloading the full
+file first. `?download=1` takes precedence and still forces an attachment.
+MP4/M4V, MOV, WebM, OGV/OGG, MKV, AVI, MPEG/MPG, 3GP/3G2, and TS/MTS filenames
+are recognized, case insensitively. Playback depends on the browser's format and
+codec support; there is no transcoding. The player retains a download fallback.
+Every player and stream request checks the existing file expiry and storage;
+playback never extends availability. Non-video playback requests return 415.
+
 The limit is **200 MB (200,000,000 bytes)** per file, including files exactly at
 the limit. Larger files return HTTP 413. Requests must contain exactly one
 multipart `file` field, with an optional `expires_in` text field. The full
