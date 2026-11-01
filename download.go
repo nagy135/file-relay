@@ -50,7 +50,7 @@ func (a *relay) download(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if r.URL.Query().Get("stream") != "1" {
-			serveVideoPage(w, r, id, m)
+			serveVideoPage(w, r, id, m, a.now())
 			return
 		}
 		w.Header().Set("Content-Disposition", mime.FormatMediaType("inline", map[string]string{"filename": filename}))

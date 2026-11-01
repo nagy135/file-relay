@@ -24,11 +24,19 @@ func videoContentType(filename string) string {
 
 var videoPage = template.Must(template.ParseFS(webContent, "web/video.html"))
 
-func serveVideoPage(w http.ResponseWriter, r *http.Request, id string, m metadata) {
-	data := struct{ Filename, ExpiresAt, StreamURL, DownloadURL string }{
-		m.Filename, m.ExpiresAt.UTC().Format(time.RFC1123),
-		"/" + id + "?play=1&stream=1",
-		"/download/" + id + "/" + url.PathEscape(m.Filename),
+func serveVideoPage(w http.ResponseWriter, r *http.Request, id string, m metadata, now time.Time) {
+	remaining := m.ExpiresAt.Sub(now)
+	data := struct {
+		Filename, ExpiresAt, ExpiresISO, StreamURL, DownloadURL, Remaining string
+		RemainingMS                                                        int64
+	}{
+		Filename:    m.Filename,
+		ExpiresAt:   m.ExpiresAt.UTC().Format("15:04 UTC · 2 Jan 2006"),
+		ExpiresISO:  m.ExpiresAt.UTC().Format(time.RFC3339),
+		StreamURL:   "/" + id + "?play=1&stream=1",
+		DownloadURL: "/download/" + id + "/" + url.PathEscape(m.Filename),
+		Remaining:   remaining.Round(time.Second).String(),
+		RemainingMS: remaining.Milliseconds(),
 	}
 	var body bytes.Buffer
 	if err := videoPage.Execute(&body, data); err != nil {
